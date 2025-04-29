@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Number Countdown App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        h1 {
+            color: #333;
+        }
+        label {
+            display: block;
+            margin-top: 15px;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            box-sizing: border-box;
+        }
+        button {
+            margin-top: 20px;
+            padding: 10px;
+            width: 100%;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            font-size: 16px;
+        }
+        .output {
+            margin-top: 20px;
+            white-space: pre-wrap;
+            background: #fff;
+            padding: 15px;
+            border: 1px solid #ccc;
+        }
+    </style>
+</head>
+<body>
+    <h1>Number Countdown App (Mobile Ready)</h1>
+    <label for="startNumber">Current number:</label>
+    <input type="number" id="startNumber" placeholder="Enter current number">
+
+    <label for="myNumber">Your target number:</label>
+    <input type="number" id="myNumber" placeholder="Enter your target number">
+
+    <button onclick="startCountdown()">Start Countdown</button>
+
+    <div class="output" id="output"></div>
+    <button onclick="handleNext()" style="margin-top:15px;">Next Number Called</button>
+
+    <script>
+        let startTime = 0;
+        let startNumber = 0;
+        let currentNumber = 0;
+        let myTarget = 0;
+
+        function timeFormat(secs) {
+            // Ensure secs is a valid finite number
+            if (!isFinite(secs)) return "Invalid Time";
+
+            secs = Math.floor(secs); // Convert to non-decimal integer
+
+            if (secs < 60) {
+                return secs + "s";
+            } else if (secs < 3600) {
+                const minutes = Math.floor(secs / 60);
+                const rest = secs % 60;
+                return `${minutes}m ${rest}s`;
+            } else {
+                const hours = Math.floor(secs / 3600);
+                const minutes = Math.floor((secs % 3600) / 60);
+                const rest = secs % 60;
+                return `${hours}h ${minutes}m ${rest}s`;
+            }
+        }
+
+        function startCountdown() {
+            const startInput = document.getElementById("startNumber").value;
+            const myInput = document.getElementById("myNumber").value;
+
+            if (!startInput || !myInput) {
+                alert("Please enter both current and target numbers.");
+                return;
+            }
+
+            startNumber = parseInt(startInput);
+            myTarget = parseInt(myInput);
+
+            if (isNaN(startNumber) || isNaN(myTarget) || myTarget <= startNumber) {
+                alert("Please make sure your number is greater than the current number.");
+                return;
+            }
+
+            currentNumber = startNumber;
+            startTime = performance.now();
+
+            document.getElementById("output").innerText = "Countdown started. Tap 'Next' when next number is called.";
+        }
+
+        function handleNext() {
+            if (startTime === 0) {
+                alert("Please start the countdown first.");
+                return;
+            }
+
+            currentNumber += 1;
+            const now = performance.now();
+            const elapsed = (now - startTime) / 1000; // convert to seconds
+
+            const numbersProcessed = currentNumber - startNumber;
+            const averageTimePerNumber = elapsed / numbersProcessed;
+            const remainingNumbers = myTarget - currentNumber;
+            const estimatedRemainingTime = averageTimePerNumber * remainingNumbers;
+
+            let outputText = `Current number: ${currentNumber} (-${remainingNumbers})\n`;
+
+            if (currentNumber < myTarget) {
+                const eta = timeFormat(estimatedRemainingTime);
+                const waitTime = timeFormat(Math.floor(elapsed));
+                outputText += `ETA: ${eta}\nWait: ${waitTime}`;
+            } else {
+                outputText += `Your turn! Total wait: ${timeFormat(Math.floor(elapsed))}`;
+                startTime = 0; // Reset for future use
+            }
+
+            document.getElementById("output").innerText = outputText;
+        }
+    </script>
+</body>
+</html>
